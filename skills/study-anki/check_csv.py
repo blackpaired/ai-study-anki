@@ -40,9 +40,9 @@ def main(path):
 
     print(f"{cards} cards checked: {len(errors)} errors, {len(warnings)} warnings")
     for e in errors:
-        print("  ✘", e)
+        print("  ERROR  ", e)
     for w in warnings:
-        print("  !", w)
+        print("  warning", w)
     return 1 if errors else 0
 
 

@@ -13,11 +13,11 @@ rm -rf "$skills/study-anki"
 cp -r "$here/skills/study-anki" "$skills/"
 chmod +x "$skills/study-anki/to_md.sh" "$skills/study-anki/check_csv.py"
 
-echo "✔ Skill installed:  $skills/study-anki/"
+echo "Skill installed:  $skills/study-anki/"
 echo
 echo "Required programs:"
 missing=0
-check() { if command -v "$1" >/dev/null 2>&1; then echo "  ✔ $1"; else echo "  ✘ $1 missing  ($2)"; missing=1; fi; }
+check() { if command -v "$1" >/dev/null 2>&1; then echo "  ok       $1"; else echo "  MISSING  $1  ($2)"; missing=1; fi; }
 check markitdown  "pip install 'markitdown[all]'  or  pipx install 'markitdown[all]'"
 check python3     "needed for the CSV check: install Python 3"
 check pdftotext   "poppler: sudo pacman -S poppler / sudo apt install poppler-utils / brew install poppler"
