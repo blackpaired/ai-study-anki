@@ -6,7 +6,7 @@ description: Automatically creates Anki flashcards from study materials (PDFs, s
 # Study Anki – flashcards from your materials
 
 The user studies for exams with **Anki**. You turn their materials into cards they can import with one click.
-Language of the cards: the language of the materials, technical terms as in the materials.
+Language of the cards: **if the user writes in the same language as the materials, use that language and don't ask.** If they differ (e.g. the user writes German, the materials are English) or the materials are mixed, **ask at the very start** – as the first question, as soon as you have seen the materials and before anything else – which language they want: the user's language or the language of the materials. Use the multiple-choice question tool if available, otherwise one short line in the chat. Then use that language for all cards (technical terms as in the materials); when adding cards to an existing CSV, keep its language.
 Goal: cards that are **short, unambiguous and correct** – and that ask not only for facts but also for the **why**.
 
 Argument (optional): path to a file or folder. If missing, ask for it (or use files the user sends in the chat).

@@ -29,7 +29,7 @@ A skill for **terminal AI agents** (AI coding agents / agentic CLIs such as Clau
 ## How it works
 
 1. **Convert:** all files in your folder are converted to `.md` with `markitdown` (fallback: `pandoc` for Word files). For scanned pages, the AI looks at rendered page images directly or runs OCR.
-2. **Ask:** 3 quick questions: scope, amount and card types.
+2. **Ask:** 3 quick questions: scope, amount and card types. If your materials are in a different language than you write in, it first asks which language the cards should be in.
 3. **Write:** `<Material>_Anki.csv` is created in your materials folder.
 4. **Check:** content check against the sources + technical CSV check; justified corrections are applied.
 5. **Import:** in Anki: *File → Import* → choose the CSV → *Import*.
