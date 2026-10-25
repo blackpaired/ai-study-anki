@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Builds dist/study-anki.zip for uploading in Claude.ai / Claude Desktop (Customize > Skills > Upload a skill).
-# Claude.ai allows at most 200 characters in the description, so the ZIP gets this short one;
-# the full SKILL.md description stays for Claude Code and other agents.
+# Builds dist/study-anki.zip for AI apps that let you upload skills as a ZIP file.
+# Some apps allow at most 200 characters in the skill description, so the ZIP gets this short one;
+# the full SKILL.md description stays in the repo.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 short="Turns lecture notes into an Anki package (.apkg) with basic, cloze and image occlusion cards, checked against your notes. Use for Anki, flashcards, cloze or image occlusion."
