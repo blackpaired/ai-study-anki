@@ -1,48 +1,73 @@
 # AI Study Anki
 
-A skill for **terminal AI agents** (AI coding agents / agentic CLIs such as Claude Code, Codex CLI, Gemini CLI, OpenCode …) that turns your study materials (PDFs, lecture notes, slides, even scans) into **Anki flashcards**. You get a CSV file in the simple format `"question","answer"` that you can import into Anki with one click.
+A skill for **terminal AI agents** (AI coding agents / agentic CLIs such as Claude Code, Codex CLI, Gemini CLI, OpenCode …) that turns your study materials (PDFs, lecture notes, slides, even scans) into **Anki flashcards**. You get a ready-made Anki package (`.apkg`) with **basic cards, cloze cards and image occlusion cards** made from the figures in your materials. Double-click it, click *Import*, done.
+
+![Image occlusion card: front and back](examples/image-occlusion.png)
+
+*Illustration of an image occlusion card made from a labelled figure. Front: all labels are hidden, the red one is asked. Back: the answer is revealed.*
 
 ## What you get
 
-- **Good cards, not just many cards**: one piece of information per card, unambiguous questions with context, short answers with the key statement in bold.
-- **Why cards** that ask for the connection, not only the fact.
-- Optional **difference cards** and **case cards**.
+- **Three card types in one package**:
+  - **Basic**: question → short answer with the key statement in bold and a one-line *why*.
+  - **Cloze**: a complete sentence with the key term as a gap (`{{c1::…}}`), one card per gap.
+  - **Image occlusion**: the labels of a figure are found automatically with OCR and hidden; one card per label.
+- **Good cards, not just many cards**: one piece of information per card, unambiguous questions with context, why cards, difference cards and optional case cards.
 - **Variants, exceptions and numbers** from your materials are included, because exactly those get tested.
+- **No duplicates on re-import**: the same card always gets the same ID. A newer package of the same material updates your existing cards and keeps your review progress.
+- **Checked twice**: the script checks every card (empty fields, clozes without a gap, boxes outside the image, duplicates), draws the occlusion boxes onto a check image, and a reviewer pass compares every card with your sources.
 - **Weak spots first**: if you used [ai-study-quiz](https://github.com/blackpaired/ai-study-quiz) or [ai-study-tutor](https://github.com/blackpaired/ai-study-tutor) before, the weak spots from their logs become cards first.
-- **Two checks**: a reviewer pass compares every card with your sources, and `check_csv.py` makes sure the CSV imports cleanly (2 columns, no empty fields, no duplicates, no overly long answers).
+- **CSV on request** (basic cards only) for people who prefer it.
 - **Automatic conversion** of your materials to Markdown (`to_md.sh`), including detection of scanned PDFs.
 
-## The CSV format
+## Try the demo
 
-```csv
-#separator:Comma
-#html:true
-#deck:Medicine::Anatomy::Muscles and nerves
-"Which nerve supplies the deltoid?","<b>Axillary nerve</b>"
-"Why is brachioradialis supplied by the radial nerve although it flexes?","<b>It developed from the dorsal (extensor) layer.</b><br>Innervation shows origin, not function."
-```
+The [`examples`](examples) folder contains a small demo deck about dental anatomy (with a figure drawn for this repo):
 
-- One row per card, both fields in double quotes, separated by a comma.
-- `<b>` and `<br>` for formatting (HTML is enabled by the header).
-- The header lines set the separator, HTML and the target deck (Anki 2.1.55 or newer). For older Anki versions, delete the three `#` lines.
+- [`demo.apkg`](examples/demo.apkg): download it and double-click it. You get 3 basic, 2 cloze and 1 image occlusion note (14 cards) in the deck *Demo::Dental anatomy*.
+- [`cards.json`](examples/cards.json): the cards file the AI wrote for it. This is the format the AI produces.
+- [`tooth.png`](examples/tooth.png): the figure used for the image occlusion card.
+
+To build the package yourself: `python3 -I skills/study-anki/anki_package.py examples/cards.json demo.apkg`
 
 ## How it works
 
 1. **Convert:** all files in your folder are converted to `.md` with `markitdown` (fallback: `pandoc` for Word files). For scanned pages, the AI looks at rendered page images directly or runs OCR.
-2. **Ask:** 3 quick questions: scope, amount and card types. If your materials are in a different language than you write in, it first asks which language the cards should be in.
-3. **Write:** `<Material>_Anki.csv` is created in your materials folder.
-4. **Check:** content check against the sources + technical CSV check; justified corrections are applied.
-5. **Import:** in Anki: *File → Import* → choose the CSV → *Import*.
+2. **Ask:** up to 4 quick questions: scope, amount, card types and content.
+3. **Write:** the AI writes the cards into a JSON file. For image occlusion, it renders the pages with figures, crops the figure and finds the labels with `find_labels.py` (Tesseract OCR).
+4. **Check:** `anki_package.py --preview` checks the cards and draws every occlusion box onto a check image. A reviewer pass compares the cards with your sources, and justified corrections are applied.
+5. **Build:** `<Material>_Anki.apkg` is created next to your materials.
+6. **Import:** double-click the `.apkg` (or in Anki: *File → Import*) → *Import*.
+
+## Card format (cards.json)
+
+```json
+{
+  "deck": "Medicine::Anatomy::Muscles and nerves",
+  "tags": ["anatomy"],
+  "cards": [
+    {"type": "basic", "front": "Which nerve supplies the deltoid?", "back": "<b>Axillary nerve</b>"},
+    {"type": "cloze", "text": "The {{c1::axillary nerve}} passes through the {{c2::quadrangular space}}.", "extra": "Notes, section 3"},
+    {"type": "occlusion", "image": "/path/figure.png", "header": "Shoulder, posterior view", "extra": "Notes p. 12",
+     "mode": "all", "boxes": [{"left": 597, "top": 71, "width": 116, "height": 28}]}
+  ]
+}
+```
+
+- `mode: "all"`: all labels hidden, one is asked (default). `mode: "one"`: only the asked label is hidden.
+- Boxes are in pixels of the image. `find_labels.py` prints them for every label it finds.
+- The note types are called *study-anki: Basic*, *study-anki: Cloze* and *study-anki: Image Occlusion*. They are kept in a small template collection in the skill folder, so Anki recognises them on every import instead of creating duplicates.
 
 ## Requirements
 
-- A terminal AI agent that can read files and run shell commands. Skill and subagent support is a plus, but not required.
+- A terminal AI agent that can read files and run shell commands. Skill and subagent support is a plus, but not required. Image support (the AI can look at images) is needed for image occlusion cards.
 - Linux or macOS (Windows via WSL)
-- Python 3 (for the CSV check)
+- [Anki](https://apps.ankiweb.net) 23.10 or newer (built-in image occlusion)
+- Python 3 with Anki's Python library and Pillow: `pip install anki pillow` (some Linux packages of Anki, e.g. on Arch, already include the library). Without it, only CSV works.
 - [`markitdown`](https://github.com/microsoft/markitdown): `pipx install 'markitdown[all]'`
 - `poppler`: `sudo pacman -S poppler` / `sudo apt install poppler-utils` / `brew install poppler`
-- Optional: [`pandoc`](https://pandoc.org) (fallback for Word files), `tesseract` plus the language packs you need (for scans)
-- [Anki](https://apps.ankiweb.net) 2.1.55 or newer recommended
+- `tesseract` plus the language packs you need (for image occlusion and scans)
+- Optional: [`pandoc`](https://pandoc.org) (fallback for Word files)
 
 ## Installation
 
@@ -58,14 +83,14 @@ By default the script copies the skill to `~/.claude/skills/study-anki/`. Claude
 bash install.sh ~/.my-ai-tool/skills
 ```
 
-The script also shows which required programs are missing.
+The script also shows which required programs are missing. Updating with `install.sh` keeps the template collection, so your note types stay the same.
 
 To install by hand instead:
 
 ```bash
 mkdir -p <skills-folder>
 cp -r skills/study-anki <skills-folder>/
-chmod +x <skills-folder>/study-anki/to_md.sh <skills-folder>/study-anki/check_csv.py
+chmod +x <skills-folder>/study-anki/*.sh <skills-folder>/study-anki/*.py
 ```
 
 Then restart your AI agent.
@@ -80,19 +105,14 @@ Put the materials for one exam into one folder, then in your AI agent type:
 /study-anki ~/Documents/Physiology/
 ```
 
-Plain language works too: *"make Anki cards from ~/Documents/Physiology"*, or *"Anki cards only for chapter 3, with case cards"*.
+Plain language works too: *"make Anki cards from ~/Documents/Physiology"*, or *"Anki cards only for chapter 3, with image occlusion for the figures"*.
 
 Some useful follow-ups:
 
 - "add more cards for chapter 5"
+- "make image occlusion cards for the figures on pages 12–15"
 - "make the answers shorter"
-- "add case cards"
-
-### Checking a CSV only
-
-```bash
-python3 -I <skills-folder>/study-anki/check_csv.py ~/Documents/Physiology/Heart_Anki.csv
-```
+- "give me a CSV instead"
 
 ## Works well with
 
@@ -103,8 +123,9 @@ python3 -I <skills-folder>/study-anki/check_csv.py ~/Documents/Physiology/Heart_
 ## Important
 
 - Facts come from your materials. Reasoning and mnemonics partly come from general knowledge. **If anything contradicts your lecture or textbook, your lecture wins.**
-- The content check catches a lot, but it is not guaranteed to catch everything. If a card looks wrong, fix it in Anki or ask the AI.
-- Every run uses your AI usage (tokens / plan limits). Large materials mean more usage.
+- The checks catch a lot, but not everything. If a card looks wrong, fix it in Anki or ask the AI.
+- Figures from your lecture materials are for your own use. Don't share decks that contain them publicly.
+- Every run uses your AI usage (tokens / plan limits). Large materials and many figures mean more usage.
 
 ---
 

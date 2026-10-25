@@ -1,0 +1,84 @@
+{
+ "deck": "Demo::Dental anatomy",
+ "tags": [
+  "study-anki-demo"
+ ],
+ "cards": [
+  {
+   "type": "basic",
+   "front": "Tooth: Which tissue covers the dentin of the crown?",
+   "back": "<b>Enamel</b><br>Why: it is the hardest tissue of the body and protects the crown against wear."
+  },
+  {
+   "type": "basic",
+   "front": "Tooth: Which tissue covers the dentin of the root?",
+   "back": "<b>Cementum</b><br>Why: the periodontal ligament fibres anchor in it, holding the tooth in the alveolar bone."
+  },
+  {
+   "type": "basic",
+   "front": "Tooth: What is the difference between enamel and dentin?",
+   "back": "Enamel: no cells, cannot regrow, covers the crown.<br>Dentin: contains tubules with cell processes from the pulp, forms the bulk of the tooth."
+  },
+  {
+   "type": "cloze",
+   "text": "The {{c1::pulp}} contains nerves and blood vessels and continues into the root as the {{c2::root canal}}.",
+   "extra": "Demo card"
+  },
+  {
+   "type": "cloze",
+   "text": "The tooth is held in the {{c1::alveolar bone}} by the periodontal ligament, which anchors in the {{c2::cementum}}.",
+   "extra": "Demo card"
+  },
+  {
+   "type": "occlusion",
+   "image": "examples/tooth.png",
+   "header": "Tooth, longitudinal section",
+   "extra": "Demo figure (drawn for this repo)",
+   "mode": "all",
+   "boxes": [
+    {
+     "left": 598,
+     "top": 71,
+     "width": 101,
+     "height": 28
+    },
+    {
+     "left": 598,
+     "top": 191,
+     "width": 91,
+     "height": 28
+    },
+    {
+     "left": 598,
+     "top": 291,
+     "width": 60,
+     "height": 33
+    },
+    {
+     "left": 597,
+     "top": 371,
+     "width": 104,
+     "height": 33
+    },
+    {
+     "left": 597,
+     "top": 472,
+     "width": 149,
+     "height": 27
+    },
+    {
+     "left": 598,
+     "top": 561,
+     "width": 141,
+     "height": 28
+    },
+    {
+     "left": 596,
+     "top": 661,
+     "width": 186,
+     "height": 28
+    }
+   ]
+  }
+ ]
+}

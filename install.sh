@@ -9,9 +9,15 @@ here="$(cd "$(dirname "$0")" && pwd)"
 skills="${1:-$HOME/.claude/skills}"
 
 mkdir -p "$skills"
+# Keep the template collection from an earlier install: it holds the note types, and keeping it means
+# Anki recognises them on import instead of creating duplicate note types.
+keep="$(mktemp -d)"
+trap 'rm -rf "$keep"' EXIT
+if [ -d "$skills/study-anki/template" ]; then cp -r "$skills/study-anki/template" "$keep/"; fi
 rm -rf "$skills/study-anki"
 cp -r "$here/skills/study-anki" "$skills/"
-chmod +x "$skills/study-anki/to_md.sh" "$skills/study-anki/check_csv.py"
+if [ -d "$keep/template" ]; then cp -r "$keep/template" "$skills/study-anki/"; fi
+chmod +x "$skills/study-anki/"*.sh "$skills/study-anki/"*.py
 
 echo "Skill installed:  $skills/study-anki/"
 echo
@@ -19,11 +25,17 @@ echo "Required programs:"
 missing=0
 check() { if command -v "$1" >/dev/null 2>&1; then echo "  ok       $1"; else echo "  MISSING  $1  ($2)"; missing=1; fi; }
 check markitdown  "pip install 'markitdown[all]'  or  pipx install 'markitdown[all]'"
-check python3     "needed for the CSV check: install Python 3"
+check python3     "install Python 3"
+check tesseract   "for image occlusion cards and scans: tesseract + language packs"
 check pdftotext   "poppler: sudo pacman -S poppler / sudo apt install poppler-utils / brew install poppler"
 check pdftoppm    "poppler (see above)"
 check pandoc      "optional fallback for Word files: sudo pacman -S pandoc / sudo apt install pandoc / brew install pandoc"
-check tesseract   "optional, for scans: tesseract + language packs"
+if python3 -I -c "import anki.collection, PIL" >/dev/null 2>&1; then
+  echo "  ok       Anki Python library + Pillow"
+else
+  echo "  MISSING  Anki Python library or Pillow  (pip install anki pillow – without it only CSV works)"
+  missing=1
+fi
 
 echo
 [ "$missing" = 0 ] && echo "All set!" || echo "Please install the missing programs (see above). Optional ones can be skipped."
